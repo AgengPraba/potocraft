@@ -1,0 +1,25 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code settings
+.vscode/
+
+# OS file
+.DS_Store
+
+# Log file
+*.log
+
+# Env file (jika ada)
+.env
+
+# Database atau hasil build (jika ada)
+*.sqlite3
+*.db
+build/
+dist/
