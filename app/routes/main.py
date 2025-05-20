@@ -20,7 +20,7 @@ def tingkatkan_foto():
 
 @main_bp.route('/kompresi-foto')
 def kompresi_foto():
-    return render_template('kompresi_foto.jinja')
+    return render_template('kompresi.jinja')
 
 @main_bp.route('/photobox')
 def photobox():

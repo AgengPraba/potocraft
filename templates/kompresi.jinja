@@ -1,0 +1,54 @@
+{% extends "_base2.jinja" %}
+
+{% block title %}Kompresi Foto - Potocraft{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+  <!-- Sidebar Tab -->
+  <div class="w-48 bg-base-100 border-r p-4 space-y-2">
+    {% for tab in ["Upload", "Ukuran", "Crop", "Background", "Outfit", "Download", "Kompresi"] %}
+    <button id="tab-btn-{{ loop.index0 }}" class="btn w-full tab-btn" data-step="{{ loop.index0 }}" {% if loop.index0 != 0 and loop.index0 != 6 %}disabled{% endif %}>
+      {{ tab }}
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- Tab Content -->
+  <div class="flex-1 p-6 space-y-4">
+    <!-- Tab 7: Kompresi -->
+    <div class="tab-content" id="tab-content-6">
+      <h2 class="text-xl font-bold mb-4">7. Kompresi Foto</h2>
+
+      <form action="/compress" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <div>
+          <label class="font-semibold">Pilih Foto:</label>
+          <input type="file" name="image" accept="image/*" class="file-input file-input-bordered w-full" required>
+        </div>
+
+        <div>
+          <label class="font-semibold">Kualitas Kompresi:</label>
+          <select name="quality" class="select select-bordered w-full">
+            <option value="90">Ringan (90%)</option>
+            <option value="70">Sedang (70%)</option>
+            <option value="50">Tinggi (50%)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">🔽 Kompres Sekarang</button>
+      </form>
+
+      {% if original and compressed %}
+      <div class="mt-6">
+        <h2 class="text-lg font-bold mb-2">Sebelum Kompresi</h2>
+        <img src="{{ url_for('static', filename=original) }}" alt="Original">
+        <img src="{{ url_for('static', filename=compressed) }}" alt="Compressed">
+          <a class="btn btn-success" href="{{ url_for('process.download_compressed', filename=compressed) }}">
+            ⬇️ Unduh Hasil Kompresi
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
