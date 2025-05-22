@@ -1,0 +1,57 @@
+{% extends "_base2.jinja" %}
+
+{% block title %}Hapus Background - Potocraft{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+  <!-- Sidebar Tab -->
+  <div class="w-48 bg-base-100 border-r p-4 space-y-2">
+    {% for tab in ["Upload", "Ukuran", "Crop", "Background", "Outfit", "Download", "Kompresi"] %}
+    <button id="tab-btn-{{ loop.index0 }}" class="btn w-full tab-btn" data-step="{{ loop.index0 }}" {% if loop.index0 != 0 and loop.index0 != 3 %}disabled{% endif %}>
+      {{ tab }}
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- Tab Content -->
+  <div class="flex-1 p-6 space-y-4">
+    <!-- Tab 4: Hapus Background -->
+    <div class="tab-content" id="tab-content-3" style="display: block;">
+      <h2 class="text-xl font-bold mb-4">4. Hapus Background</h2>
+
+      <form action="/remove_bg" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <div>
+          <label class="font-semibold">Pilih Foto:</label>
+          <input type="file" name="image" accept="image/*" class="file-input file-input-bordered w-full" required>
+        </div>
+
+        <div>
+          <label class="font-semibold">Warna Latar Baru (opsional):</label>
+          <input type="color" name="bg_color" class="input input-bordered w-full" value="#ffffff">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">🪄 Hapus Background</button>
+      </form>
+
+      {% if original_bg and result_bg %}
+      <div class="mt-6">
+        <h2 class="text-lg font-bold mb-2">Hasil Penghapusan Background</h2>
+        <div class="flex flex-col md:flex-row gap-4">
+          <div>
+            <p class="font-semibold mb-1">Sebelum</p>
+            <img src="{{ url_for('static', filename=original_bg) }}" alt="Original Image" class="rounded border shadow">
+          </div>
+          <div>
+            <p class="font-semibold mb-1">Sesudah</p>
+            <img src="{{ url_for('static', filename=result_bg) }}" alt="Removed BG" class="rounded border shadow">
+          </div>
+        </div>
+        <a class="btn btn-success mt-4" href="{{ url_for('process.download_removed_bg', filename=result_filename) }}">
+        ⬇️ Unduh Gambar Tanpa Background
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

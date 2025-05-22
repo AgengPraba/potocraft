@@ -23,24 +23,6 @@ def crop():
     file.save(path)
     return jsonify({"filename": filename, "cropped_path": f"/{path}"})
 
-@process_bp.route('/remove_bg', methods=['POST'])
-def remove_bg():
-    data = request.json
-    filename = data['filename']
-    bg_color = data['bgColor']
-    input_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-
-    with Image.open(input_path) as img:
-        no_bg = remove(img)
-        bg = Image.new("RGBA", no_bg.size, bg_color)
-        combined = Image.alpha_composite(bg, no_bg.convert("RGBA"))
-
-        new_name = f"{uuid.uuid4().hex}_nobg.png"
-        output_path = os.path.join(current_app.config['UPLOAD_FOLDER'], new_name)
-        combined.save(output_path)
-
-    return jsonify({"processed_path": f"/{output_path}", "filename": new_name})
-
 @process_bp.route('/download/<filename>')
 def download(filename):
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
@@ -84,3 +66,46 @@ def compress_image():
 def download_compressed(filename):
     compressed_folder = os.path.join(current_app.root_path, 'static', 'compressed')
     return send_from_directory(compressed_folder, filename, as_attachment=True)
+
+
+@process_bp.route('/remove_bg', methods=['POST'])
+def remove_bg():
+    # Ambil file dan bg_color dari form
+    file = request.files.get('image')
+    bg_color = request.form.get('bg_color', '#FFFFFF')
+
+    if not file:
+        return "Tidak ada file yang diupload", 400
+
+    # Simpan file dulu ke folder upload
+    filename = f"{uuid.uuid4().hex}.png"
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    os.makedirs(upload_folder, exist_ok=True)
+    input_path = os.path.join(upload_folder, filename)
+    file.save(input_path)
+
+    # Proses hapus background
+    with Image.open(input_path) as img:
+        no_bg = remove(img)
+        bg = Image.new("RGBA", no_bg.size, bg_color)
+        combined = Image.alpha_composite(bg, no_bg.convert("RGBA"))
+
+        new_name = f"{uuid.uuid4().hex}_nobg.png"
+        output_folder = os.path.join(current_app.root_path, 'static', 'removed_bg')
+        os.makedirs(output_folder, exist_ok=True)
+        output_path = os.path.join(output_folder, new_name)
+        combined.save(output_path)
+
+    # Kirim ke template hasilnya
+    return render_template(
+        "hapusBackground.jinja",
+        original_bg=f"uploads/{filename}",
+        result_bg=f"removed_bg/{new_name}",
+        result_filename=new_name
+    )
+
+
+@process_bp.route('/download/removed_bg/<filename>')
+def download_removed_bg(filename):
+    folder = os.path.join(current_app.root_path, 'static', 'removed_bg')
+    return send_from_directory(folder, filename, as_attachment=True)
